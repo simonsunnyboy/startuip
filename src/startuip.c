@@ -1,5 +1,5 @@
 /**
- * Start uIP-Tool utility for AUTO folder
+ * Start uIPTool utility for AUTO folder
  *
  * (c) 2018 by Matthias Arndt <marndt@asmsoftware.de>
  *
@@ -58,10 +58,11 @@ static void flush_kbd(void)
 int main(void)
 {
     uint32_t tmr = Timer();
+    int32_t errcode;
 
     RunState st = WAIT_FOR_INITIAL_INPUT;
 
-    Print("\r\n\033p   Start utility for uIP-Tool   \033q\r\n");
+    Print("\r\n\033p   Start utility for uIPTool   \033q\r\n");
     Print("(c) 2018 by Matthias Arndt <marndt@asmsoftware.de>\r\n");
     Print("[u] activate uIP-tool\r\n[r] activate uIP-tool with repetition\r\n[q] immedietaly quit\r\n");
 
@@ -75,11 +76,17 @@ int main(void)
             case RUN_UIP_ONCE:
             case RUN_UIP_LOOP:
 
-                Print("*** uIP-tool running ***\r\n");
+                errcode = Pexec(0, "UIP.TOS", 0, 0);
+
+                if(errcode == -33)
+                {
+                    Print("ERROR: could not find UIP.TOS\r\n");
+                    st = TERMINATE;
+                }
 
                 if(st == RUN_UIP_LOOP)
                 {
-                   Print("uIP-tool will restart, press [q] to terminate\r\n");
+                   Print("uIPTool will restart, press [q] to terminate\r\n");
                    tmr = Timer();
                    flush_kbd();
                    st = REPEAT_UIP;
